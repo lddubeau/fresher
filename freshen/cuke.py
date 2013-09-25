@@ -1,4 +1,4 @@
-#-*- coding: utf8 -*-
+#-*- coding: utf-8 -*-
 
 # Experimental - a non-nose runner for tests, may end up being compatible
 # with Cucumber commandline

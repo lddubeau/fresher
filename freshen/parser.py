@@ -1,4 +1,4 @@
-#-*- coding: utf8 -*-
+#-*- coding: utf-8 -*-
 
 # This line ensures that frames from this file will not be shown in tracebacks
 __unittest = 1

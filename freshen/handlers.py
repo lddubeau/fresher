@@ -1,4 +1,4 @@
-#-*- coding: utf8 -*-
+#-*- coding: utf-8 -*-
 
 from freshen.cuke import FreshenHandler
 from freshen.prettyprint import FreshenPrettyPrint

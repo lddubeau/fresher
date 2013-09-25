@@ -35,4 +35,3 @@ setup(
         "Topic :: Software Development :: Testing",
     ]
 )
-
