@@ -36,13 +36,25 @@ __unittest = 1
 class FreshenErrorPlugin(ErrorClassPlugin):
 
     enabled = True
-    undefined = ErrorClass(UndefinedStepImpl,
-                           label="UNDEFINED",
-                           isfailure=False)
 
     def options(self, parser, env):
-        # Forced to be on!
-        pass
+        parser.add_option('--freshen-allow-undefined',
+                          action="store_true",
+                          default=env.get("NOSE_FRESHEN_ALLOW_UNDEFINED") == '1',
+                          dest="allow_undefined",
+                          help="Allow undefined steps."
+                          "[NOSE_FRESHEN_ALLOW_UNDEFINED]")
+
+    def configure(self, options, config):
+        super(FreshenErrorPlugin, self).configure(options, config)
+        if options.list_undefined:
+            options.allow_undefined = True
+        # This bypasses the 'attr = ErrorClass(...)' method of declaring error
+        # classes.
+        FreshenErrorPlugin.errorClasses = \
+            ((UndefinedStepImpl,
+              ("undefined", "UNDEFINED", not options.allow_undefined)), )
+
 
 
 class StepsLoadFailure(Failure):
@@ -88,9 +100,10 @@ class FreshenNosePlugin(Plugin):
                           action="store_true",
                           default=env.get('NOSE_FRESHEN_LIST_UNDEFINED') == '1',
                           dest="list_undefined",
-                          help="Make a report of all undefined steps that "
-                               "freshen encounters when running scenarios. "
-                               "[NOSE_FRESHEN_LIST_UNDEFINED]")
+                          help=("Make a report of all undefined steps that "
+                                "freshen encounters when running scenarios. "
+                                "(Implies --freshen-allow-undefined.) "
+                               "[NOSE_FRESHEN_LIST_UNDEFINED]"))
 
     def configure(self, options, config):
         super(FreshenNosePlugin, self).configure(options, config)
@@ -118,18 +131,18 @@ class FreshenNosePlugin(Plugin):
     def _makeTestClass(self, feature, scenario):
         """Chooses the test base class appropriate
         for the given feature.
-        
+
         This method supports late import of the
         test base class so that userspace code (e.g.
         in the support environment) can configure
         the test framework first (e.g. in the case
         of twisted tests to install a custom
         reactor implementation).
-        
+
         The current simplistic implementation chooses
         a twisted-enabled test class if twisted is
         present and returns a PyUnit-based test otherwise.
-        
+
         In the future this can be extended to support
         more flexible (e.g. user-defined) test classes
         on a per-feature basis."""
@@ -216,6 +229,10 @@ class FreshenNosePlugin(Plugin):
             elif not ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
                 message = "%s\n\n%s" % (str(ev), self._formatSteps(test, test.test.last_step))
                 return (ec, message, tb)
+            elif ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
+                return (ec, ev, None)
+
+        return err
 
     formatError = formatFailure
 
@@ -265,4 +282,3 @@ class FreshenNosePlugin(Plugin):
             else:
                 ret.append(FreshenPrettyPrint.step_passed(step))
         return "\n".join(ret)
-

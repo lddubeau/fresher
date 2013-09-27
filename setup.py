@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name = "freshen",
-    version = "0.2",
+    version = "0.2-ldd1",
     description = "Clone of the Cucumber BDD framework for Python",
     author = "Roman Lisagor",
     author_email = "rlisagor+freshen@gmail.com",
