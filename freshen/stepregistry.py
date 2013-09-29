@@ -6,6 +6,7 @@ import os
 import sys
 import traceback
 from itertools import chain
+import importlib
 
 __all__ = ['Given', 'When', 'Then', 'Before', 'After', 'AfterStep', 'Transform', 'NamedTransform']
 __unittest = 1
@@ -114,12 +115,18 @@ class StepImplLoadException(Exception):
 
 
 class StepImplLoader(object):
+    # Create a package in which we'll load all the steps modules
+    if "freshen.steps" not in sys.modules:
+        steps_pkg = imp.new_module("freshen.steps")
+        steps_pkg.__path__ = []
+        sys.modules["freshen.steps"] = steps_pkg
+    else:
+        raise Exception("freshen.steps already defined!")
 
     def __init__(self):
         self.modules = {}
-        self.module_counter = 0
 
-    def load_steps_impl(self, registry, path, module_names=None):
+    def load_steps_impl(self, registry, topdir, path, module_names=None):
         """
         Load the step implementations at the given path, with the given module names. If
         module_names is None then the module 'steps' is searched by default.
@@ -139,22 +146,27 @@ class StepImplLoader(object):
                 if cwd not in sys.path:
                     sys.path.append(cwd)
 
+                actual_module_name = os.path.basename(module_name)
+                complete_path = os.path.join(path, os.path.dirname(module_name))
+
+                # We still do this to emulate the behavior of freshen so that
+                # we just return if the module does not exist at all rather
+                # than raise an error. Maybe this should be changed...
                 try:
-                    actual_module_name = os.path.basename(module_name)
-                    complete_path = os.path.join(path, os.path.dirname(module_name))
-                    info = imp.find_module(actual_module_name, [complete_path])
+                    imp.find_module(actual_module_name, [complete_path])
                 except ImportError:
                     #log.debug("Did not find step defs module '%s' in %s" % (module_name, path))
                     return
-                
+
+                pkg = self.find_pkg_for_import(topdir, complete_path)
+
                 try:
-                    # Modules have to be loaded with unique names or else problems arise
-                    mod = imp.load_module("stepdefs_" + str(self.module_counter), *info)
+                    mod = importlib.import_module(
+                        pkg + "." + actual_module_name)
                 except:
                     exc = sys.exc_info()
                     raise StepImplLoadException(exc)
 
-                self.module_counter += 1
                 self.modules[(path, module_name)] = mod
 
             for item_name in dir(mod):
@@ -167,6 +179,47 @@ class StepImplLoader(object):
                     registry.add_named_transform(item)
                 elif isinstance(item, TransformImpl):
                     registry.add_transform(item)
+
+    def find_pkg_for_import(self, topdir, path):
+        """
+        Finds the package that should receive the module. It also modifies
+        the package's ``__path__`` to load the module.
+
+        :param topdir: The top directory of the test suite.
+        :type topdir: :class:`str`
+        :param path: The complete absolute path of the module.
+        :type path: :class:`str`
+        :returns: A package name
+        :rtype: :class:`str`
+        """
+        a_path = os.path.abspath(path)
+        a_topdir = os.path.abspath(topdir)
+        if os.path.commonprefix([a_path, a_topdir]) != a_topdir:
+            raise ValueError("path is not in topdir")
+
+        def splitpath(head):
+            if os.path.isabs(head):
+                raise ValueError("can't call splitpath with absolute path")
+            ret = []
+            while head:
+                (head, tail) = os.path.split(head)
+                if tail:
+                    ret[0:0] = [tail]
+
+            return ret
+
+        rel = os.path.relpath(a_path, a_topdir)
+        parts = splitpath(rel)
+        parent = self.steps_pkg
+        for part in parts:
+            new_name = parent.__name__ + "." + part
+            mod = imp.new_module(new_name)
+            mod.__path__ = [path]
+            sys.modules[new_name] = mod
+            parent = mod
+
+        return parent.__name__
+
 
 class StepImplRegistry(object):
 
@@ -215,7 +268,7 @@ class StepImplRegistry(object):
         corresponding to the implementation, and the arguments to the step implementation. If no
         implementation is found, raises UndefinedStepImpl. If more than one implementation is
         found, raises AmbiguousStepImpl.
-        
+
         Each of the arguments returned will have been transformed by the first matching transform
         implementation.
         """

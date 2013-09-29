@@ -111,6 +111,7 @@ class FreshenNosePlugin(Plugin):
         self.tagmatcher = TagMatcher(all_tags)
         self.language = load_language(options.language)
         self.impl_loader = StepImplLoader()
+        self.topdir = os.getcwd()
         if not self.language:
             print >> sys.stderr, "Error: language '%s' not available" % options.language
             exit(1)
@@ -155,6 +156,7 @@ class FreshenNosePlugin(Plugin):
                 self._test_class = PyunitTestCase
         return type(feature.name, (self._test_class, ), {scenario.name: lambda self: self.runScenario()})
 
+
     def loadTestsFromFile(self, filename, indexes=[]):
         log.debug("Loading from file %s" % filename)
 
@@ -168,7 +170,8 @@ class FreshenNosePlugin(Plugin):
             return
 
         try:
-            self.impl_loader.load_steps_impl(step_registry, path, feat.use_step_defs)
+            self.impl_loader.load_steps_impl(step_registry, self.topdir,
+                                             path, feat.use_step_defs)
         except StepImplLoadException, e:
             yield StepsLoadFailure(address=TestAddress(filename), *e.exc)
             return
