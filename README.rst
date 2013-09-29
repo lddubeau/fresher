@@ -1,3 +1,97 @@
+Fresher
+=======
+
+Differences from Freshen:
+
+* Undefined steps are fatal errors unless you pass --fresher-allow-undefined.
+
+* Freshen would load steps files under fake module names. Fresher
+  loads the whole shebang under ``freshen.steps``.
+
+.. warning:: Do not have a steps module loaded by Fresher also be
+             loaded by no-step modules.  (A no-step module is one wich
+             does not implement steps). Here's a scenario where you
+             could run into trouble: module A ``features/steps`` loads
+             module B ``features/util`` (a nostep module) which loads
+             module C ``features/nested/steps`` which is also a steps
+             module for another set of features. We could call this an
+             S-N-S scenario (steps, no-step, steps). If you do this
+             then module C will be loaded twice: once because module B
+             imports it and a second time when fresher finds it is
+             needed for some features in the ``nested``
+             subdirectory. It will be loaded as *two different
+             modules*. If the duplicated module maintains no state,
+             you'll only incur the cost of loading the same module
+             twice. However, if it does maintain state, then good
+             luck.
+
+             Note that Freshen 0.2 also suffers from this problem due
+             to the fake module names it uses. I believe behave 1.2.3
+             also suffers from this problem. It uses ``exec`` to load
+             step definition files. In an S-N-S case like the one
+             above, module A will be exec'ed, and module B will import
+             module C so module C will show as an actual Python
+             module. Then when behave determines that C is needed for
+             step definitions, it will exec it, thereby loading it
+             again.
+
+             It is completely fine if a steps module or package loads
+             a non-steps module or package. It is highly recommended
+             to separate step definitions from broader logic.
+
+* Fresher allows duplicate function names for steps.
+
+* Fresher associates with a package the steps defined by all the
+  **modules** that are its **immediate** children. Imagine the
+  following structure::
+
+    steps/
+          __init__.py
+          caret.py
+          selection.py
+          nested/
+               __init__.py
+               log.py
+               data.py
+
+  When this ``steps`` package is loaded by Fresher, all of the steps
+  found in ``caret.py`` and ``selection.py`` will be immediately
+  accessible. **There is no need to refer to these modules
+  individually or to add anything to the ``steps/__init__.py``
+  file. However, what is in the **subpackage** named ``steps.nested``
+  will not be accessible until ``steps.nested`` is itself loaded by
+  Fresher.
+
+  With Freshen ``steps/__init__.py`` would require::
+
+    from .caret import *
+    from .selection import *
+
+  but this is *not* required when using Fresher.
+
+* Generally speaking, the ``from ... import *`` method of making steps
+  accessible in another module, which worked fine in Freshen, does not
+  work in Fresher. It worked in Freshen because Frenshen would
+  determine the steps defined in a module by scanning the module's
+  *global symbols*. This cannot work with Fresher because it allows
+  duplicate function names. (If ``@given('a')`` and ``@given('b')``
+  both decorate ``foo()`` the symbol ``foo`` is still present only
+  once.)
+
+  You have to use ``fresher.stepregistry.import_steps()`` to import
+  the steps from another module. For instance::
+
+    from freshen.stepregistry import import_steps
+
+    import_steps(".defs")
+
+  Or if you want to import steps from a more remote location (actual
+  case in the test suite)::
+
+    from freshen.stepregistry import import_steps
+
+    import_steps("..nested.steps")
+
 Freshen
 =======
 
@@ -16,7 +110,7 @@ What's New in Version 0.2?
 - "@After" hooks are now run in the *opposite* order of which they are registered.
 - Improved error handling and reporting.
 
-There are also some modifications that are incompatible with Cucumber. 
+There are also some modifications that are incompatible with Cucumber.
 
 - Only the step definition module named "steps" is used by default.
 - Users can override this behavior with the "Use step definitions from" keyword.
@@ -92,9 +186,9 @@ which indicates which variable to substitute for).
 Backgrounds
 -----------
 
-A feature may contain a background. It allows you to *add some context to the scenarios* 
-in the current feature. A Background is much like a scenario containing a number of steps. 
-The difference is when it is run. 
+A feature may contain a background. It allows you to *add some context to the scenarios*
+in the current feature. A Background is much like a scenario containing a number of steps.
+The difference is when it is run.
 *The background is run before each of your scenarios but after any of your "@Before" hooks.*
 
 Here is an example::
@@ -103,20 +197,20 @@ Here is an example::
       In order to have some friends
       As a Facebook user
       I want to be able to manage my list of friends
-      
+
       Background:
         Given I am the user Ken
         And I have friends Barbie, Cloe
-    
+
       Scenario: Adding a new friend
         When I add a new friend named Jade
         Then I should have friends Barbie, Cloe, Jade
-    
+
       Scenario: Removing a friend
         When I remove my friend Cloe
         Then I should have friends Barbie
 
-*Note that background should be added in a feature only if it has a value for the client.* 
+*Note that background should be added in a feature only if it has a value for the client.*
 Otherwise, you can use tagged hooks (see Tags_ and Hooks_).
 
 
@@ -132,12 +226,12 @@ example of a step definition file, which hopefully illustrates this point::
     from freshen import *
 
     import calculator
-    
+
     @Before
     def before(sc):
         scc.calc = calculator.Calculator()
         scc.result = None
-    
+
     @Given("I have entered (\d+) into the calculator")
     def enter(num):
         scc.calc.push(int(num))
@@ -151,7 +245,7 @@ example of a step definition file, which hopefully illustrates this point::
     def check_result(value):
         assert_equal(str(scc.result), value)
 
-In this example, you see a few step definitions, as well as a hook. Any captures (bits inside the 
+In this example, you see a few step definitions, as well as a hook. Any captures (bits inside the
 parentheses) from the regular expression are passed to the step definition function as arguments.
 
 
@@ -173,9 +267,9 @@ Here is an example::
 
     Feature: Destroy a document
       In order to take out one's anger on a document
-      As an unsatisfied reader 
+      As an unsatisfied reader
       I want to be able to rip off the pages of the document
-    
+
       Scenario: Rip off a page
         Given a document of 5 pages
         And the page is 3
@@ -183,7 +277,7 @@ Here is an example::
         Then the page is 3
         But the document has 4 pages
 
-Although you have the opportunity to explicitly specify the step definition modules to use in Freshen, 
+Although you have the opportunity to explicitly specify the step definition modules to use in Freshen,
 this is not a reason to fall into the `Feature-Coupled Steps Antipattern`_!
 
 A step definition module can import other step definition modules. When doing this,
@@ -228,14 +322,14 @@ is missing::
 Running steps from within step definitions
 ------------------------------------------
 
-You can call out to a step definition from within another step using the same notation used in 
+You can call out to a step definition from within another step using the same notation used in
 feature files. To do this, use the ``run_steps`` function::
 
     @Given('I do thing A')
     def do_a():
         #Do something useful.
         pass
-    
+
     @Given('I have B')
     def having_b():
         #Do something useful.
@@ -272,16 +366,16 @@ A feature or scenario can be adorned with one or more tags. This helps classify 
 scenarios to the reader. Freshen makes use of tags in two ways. The first is by allowing selective
 execution via the command line - this is described below. The second is by allowing `hooks`_ to be
 executed selectively. A partial example::
-    
+
     >> feature:
-    
+
     @needs_tmp_file
     Scenario: A scenario that needs a temporary file
         Given ...
         When ...
-    
+
     >> step definition:
-    
+
     @Before("@needs_tmp_file")
     def needs_tmp_file(sc):
         make_tmp_file()
@@ -300,7 +394,7 @@ into another type of object. For example, in the step::
 we may need to convert "user bob" to the the object User(name='bob') and
 "user adelaide" to User(name="adelaide"). To do this repeatedly would break
 the "Do Not Repeat Yourself (DRY)" principle of good software development. Step
-Argument Transforms allow you to specify an automatic transformation for 
+Argument Transforms allow you to specify an automatic transformation for
 arguments if they match a certain regular expression. These transforms are
 created in the step defitnion file. For example::
 
@@ -336,7 +430,7 @@ The following definitions can be used::
 
   @NamedTransform( '{user list}', r'("[\w\, ]+")', r'^"([\w\, ]+)"$' )
   def transform_user_list( slist ):
-     return [ User.objects.find( name ) 
+     return [ User.objects.find( name )
               for name.strip() in slist.split( ',' ) ]
 
   @Then(r"these users should be friends: {user list}" )
@@ -406,7 +500,7 @@ Internationalization
 
 Freshen now supports 30 languages, exactly the same as cucumber, since the
 "language" file was borrowed from the cucumber project. As long as your
-``.feature`` files respect the syntax, the person in charge of writing the 
+``.feature`` files respect the syntax, the person in charge of writing the
 acceptance tests may write it down in his/her mother tongue. The only exception is
 the new keyword for `specifying step definition modules`_ since it is not available
 in Cucumber_. For the moment, this keyword is available only in English, French,
@@ -414,7 +508,7 @@ and Portugese. If you use another language, you must use the english keyword for
 particular keyword (or translate it and add it to the ``languages.yml`` file).
 
 The 'examples' directory contains a French sample. It's a simple translation of
-the english 'calc'. If you want to check the example, go to the 'calc_fr' 
+the english 'calc'. If you want to check the example, go to the 'calc_fr'
 directory, and run::
 
     $ nosetests --with-freshen --language=fr
@@ -445,4 +539,3 @@ please feel free to let me know, or simply clone the repo and play around.
 .. _`Selenium`: http://seleniumhq.org/
 .. _`Django`: http://www.djangoproject.com/
 .. _`django-sane-testing`: http://devel.almad.net/trac/django-sane-testing/
-

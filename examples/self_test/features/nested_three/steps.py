@@ -1,2 +1,3 @@
-from examples.self_test.features.nested.steps import *
+from freshen.stepregistry import import_steps
 
+import_steps("..nested.steps")

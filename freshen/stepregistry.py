@@ -7,6 +7,7 @@ import sys
 import traceback
 from itertools import chain
 import importlib
+import pkgutil
 
 __all__ = ['Given', 'When', 'Then', 'Before', 'After', 'AfterStep', 'Transform', 'NamedTransform']
 __unittest = 1
@@ -19,9 +20,22 @@ class AmbiguousStepImpl(Exception):
         self.step = step
         self.impl1 = impl1
         self.impl2 = impl2
-        super(AmbiguousStepImpl, self).__init__('Ambiguous: "%s"\n %s\n %s' % (step.match,
-                                                                              impl1.get_location(),
-                                                                              impl2.get_location()))
+        if (impl1.func is impl2.func):
+            # Determine who defined it
+            defined_in = [x for x in step_cache if impl1 in step_cache[x]]
+            msg = 'Ambiguous: "%s"\n %s\n %s\nDefined through:\n %s' % \
+                  (step.match,
+                   impl1.get_location(),
+                   impl2.get_location(),
+                   "\n".join(defined_in))
+        else:
+            msg = 'Ambiguous: "%s"\n %s %s\n %s %s' % (step.match,
+                                                       impl1.get_location(),
+                                                       repr(impl1.func),
+                                                       impl2.get_location(),
+                                                       repr(impl2.func))
+
+        super(AmbiguousStepImpl, self).__init__(msg)
 
 class UndefinedStepImpl(Exception):
 
@@ -30,7 +44,6 @@ class UndefinedStepImpl(Exception):
         super(UndefinedStepImpl, self).__init__('"%s" # %s' % (step.match, step.source_location()))
 
 class StepImpl(object):
-
     def __init__(self, step_type, spec, func):
         self.step_type = step_type
         self.spec = spec
@@ -167,13 +180,29 @@ class StepImplLoader(object):
                     exc = sys.exc_info()
                     raise StepImplLoadException(exc)
 
+                def walk_error(x):
+                    raise StepImplLoadException((ImportError, "can't load " + x,
+                                                 None))
+
+                propagate_steps_to_parent(mod)
+
                 self.modules[(path, module_name)] = mod
+
+            # Add the items from the module itself.
+            for item in step_cache.get(mod.__name__, []):
+                registry.add_step(item.step_type, item)
+
+            # The module is a package, add the items from its
+            # submodules and subpackages.
+            if hasattr(mod, "__path__"):
+                for candidate in step_cache:
+                    if candidate.startswith(mod.__name__):
+                        for item in step_cache[candidate]:
+                            registry.add_step(item.step_type, item)
 
             for item_name in dir(mod):
                 item = getattr(mod, item_name)
-                if isinstance(item, StepImpl):
-                    registry.add_step(item.step_type, item)
-                elif isinstance(item, HookImpl):
+                if isinstance(item, HookImpl):
                     registry.add_hook(item.cb_type, item)
                 elif isinstance(item, NamedTransformImpl):
                     registry.add_named_transform(item)
@@ -211,11 +240,18 @@ class StepImplLoader(object):
         rel = os.path.relpath(a_path, a_topdir)
         parts = splitpath(rel)
         parent = self.steps_pkg
+        search_path = a_topdir
         for part in parts:
             new_name = parent.__name__ + "." + part
-            mod = imp.new_module(new_name)
-            mod.__path__ = [path]
-            sys.modules[new_name] = mod
+            mod = sys.modules.get(new_name)
+            if not mod:
+                mod = imp.new_module(new_name)
+                sys.modules[new_name] = mod
+            search_path = os.path.join(search_path, part)
+            if "__path__" not in dir(mod):
+                mod.__path__ = [search_path]
+            elif search_path not in mod.__path__:
+                mod.__path__.append(search_path)
             parent = mod
 
         return parent.__name__
@@ -241,7 +277,8 @@ class StepImplRegistry(object):
         self.tag_matcher_class = tag_matcher_class
 
     def add_step(self, step_type, step):
-        self.steps[step_type].append(step)
+        if step not in self.steps[step_type]:
+            self.steps[step_type].append(step)
         for named_transform in self.named_transforms:
             named_transform.apply_to_step(step)
 
@@ -291,14 +328,61 @@ class StepImplRegistry(object):
         hooks.sort(cmp=lambda x, y: cmp(x.order, y.order))
         return hooks
 
+step_cache = {}
 
 def step_decorator(step_type):
     def decorator_wrapper(spec):
         """ Decorator to wrap step definitions in. Registers definition. """
         def wrapper(func):
-            return StepImpl(step_type, spec, func)
+            ret = StepImpl(step_type, spec, func)
+            steps = step_cache.setdefault(func.__module__, [])
+            steps.append(ret)
+            return ret
         return wrapper
     return decorator_wrapper
+
+
+def merge_steps_no_dup(into, other):
+    into.extend([x for x in other if x not in into])
+
+def propagate_steps_to_parent(parent):
+    if hasattr(parent, "__path__"):
+        to_add = []
+        for (_loader, name, ispkg) in pkgutil.iter_modules(parent.__path__,
+                                                           parent.__name__ +
+                                                           "."):
+            if ispkg:
+                continue
+            to_add.extend(step_cache[importlib.import_module(name).__name__])
+        other_steps = step_cache.setdefault(parent.__name__, [])
+        merge_steps_no_dup(other_steps, to_add)
+
+def import_steps(other):
+    """
+    Imports the steps associated with another module into the module
+    that calls this function.
+    """
+    import inspect
+
+    frame = inspect.stack()[1]
+    me = inspect.getmodule(frame[0])
+    steps = step_cache.setdefault(me.__name__, [])
+    package_name = None
+    if other.startswith("."):
+        if hasattr(me, "__path__"):
+            # Package, use it as the reference point.
+            package_name = me.__name__
+        elif me.__name__.find(".") > -1:
+            # Not a package, but *in* a package, use the package as
+            # ref point.
+            package_name = me.__name__.rsplit(".", 1)[0]
+    other_mod = importlib.import_module(other, package=package_name)
+
+    # Propagate the steps defined by submodules to the parent package
+    if other_mod.__name__ not in step_cache:
+        propagate_steps_to_parent(other_mod)
+
+    merge_steps_no_dup(steps, step_cache[other_mod.__name__])
 
 def hook_decorator(cb_type):
     """ Decorator to wrap hook definitions in. Registers hook. """

@@ -67,13 +67,13 @@ def _check_outcome_with(exp_output, exp_status):
     assert_equals(exp_output, scc.output)
 
 @Then("^it should (pass|fail) with$")
-def check_outcome_with(exp_output, exp_status):
+def step_impl(exp_output, exp_status):
     # Strip color codes out first, we don't care
     scc.output = re.sub("\033\\[[0-9]*m", '', scc.output)
     return _check_outcome_with(exp_output, exp_status)
 
 @Then("^it should (pass|fail) with colorized output$")
-def check_outcome_with_colorized(exp_output, exp_status):
+def step_impl(exp_output, exp_status):
     return _check_outcome_with(exp_output, exp_status)
 
 @Then("^it should (pass|fail) with xunit file (\S+)$")
