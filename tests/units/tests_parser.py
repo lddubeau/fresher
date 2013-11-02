@@ -4,6 +4,8 @@ Partial tests for the parser.
 """
 import unittest
 
+import six
+
 from freshen.core import load_language
 from freshen.parser import parse_file
 
@@ -56,7 +58,10 @@ class TestParseValidFeature(unittest.TestCase):
     def test_should_parse_feature_file_with_unicode_use_only(self):
         feature = parse_file(self.cur_dir + '/resources/valid_with_tags_with_unicode_use_only.feature', self.language)
         self.assertEquals(feature.tags[0], 'one')
-        self.assertEquals(feature.use_step_defs[0], 'unicodeèédç')
+        self.assertEquals(
+            feature.use_step_defs[0].encode('utf8') if not six.PY3
+            else feature.use_step_defs[0],
+            'unicodeèédç')
 
 
     def test_should_parse_feature_file_with_full_unix_path_use_only(self):
@@ -111,7 +116,9 @@ class TestParseValidFeatureInFrench(unittest.TestCase):
 
     def test_should_parse_feature_file_without_tags_and_without_use_only(self):
         feature = parse_file(self.cur_dir + '/resources/valid_no_tags_no_use_only_fr.feature', self.language)
-        self.assertEquals(feature.name, "L'indépendance des compteurs.")
+        self.assertEquals(feature.name.encode('utf8') if not six.PY3
+                          else feature.name,
+                          "L'indépendance des compteurs.")
 
 
     def test_should_parse_feature_file_with_tags_and_without_use_only(self):

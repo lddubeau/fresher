@@ -3,6 +3,7 @@
 from nose.tools import *
 import re as _re
 import difflib as _difflib
+import six
 
 __unittest = 1
 
@@ -15,12 +16,12 @@ def assert_looks_like(first, second, msg=None):
 
 _assert_equal = assert_equal
 def assert_equal(first, second, msg=None):
-    doit = all(isinstance(s, basestring) for s in [first, second]) and \
+    doit = all(isinstance(s, six.text_type) for s in [first, second]) and \
            any("\n" in s for s in [first, second])
-    
+
     if not doit:
         return _assert_equal(first, second, msg)
-        
+
     if first != second:
         diff = _difflib.unified_diff(first.split("\n"), second.split("\n"),
                                      "expected", "actual", lineterm="")
@@ -28,4 +29,3 @@ def assert_equal(first, second, msg=None):
         raise AssertionError(msg or "Strings not equal\n" + diff)
 
 assert_equals = assert_equal
-

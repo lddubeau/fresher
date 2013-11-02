@@ -4,10 +4,10 @@ import logging
 import re
 import os
 import sys
-import traceback
 from itertools import chain
 import importlib
 import pkgutil
+import six
 
 __all__ = ['Given', 'When', 'Then', 'Before', 'After', 'AfterStep', 'Transform', 'NamedTransform']
 __unittest = 1
@@ -69,7 +69,7 @@ class StepImpl(object):
         return self.re_spec.match(match)
 
     def get_location(self):
-        code = self.func.func_code
+        code = self.func.__code__
         return "%s:%d" % (code.co_filename, code.co_firstlineno)
 
 class HookImpl(object):
@@ -82,7 +82,7 @@ class HookImpl(object):
         self.order = 0
 
     def __repr__(self):
-        return "<Hook: @%s %s(...)>" % (self.cb_type, self.func.func_name)
+        return "<Hook: @%s %s(...)>" % (self.cb_type, self.func.__name__)
 
     def run(self, scenario):
         return self.func(scenario)
@@ -290,7 +290,9 @@ class StepImplRegistry(object):
 
     def add_named_transform(self, named_transform):
         self.named_transforms.append(named_transform)
-        for step in chain(*self.steps.values()):
+        # pylint: disable=E1101
+        for step in chain(*(self.steps.values() if not six.PY3 else
+                            list(self.steps.values()))):
             named_transform.apply_to_step(step)
 
     def _apply_transforms(self, arg, step):
@@ -325,7 +327,7 @@ class StepImplRegistry(object):
 
     def get_hooks(self, cb_type, tags=[]):
         hooks = [h for h in self.hooks[cb_type] if self.tag_matcher_class(h.tags).check_match(tags)]
-        hooks.sort(cmp=lambda x, y: cmp(x.order, y.order))
+        hooks.sort(key=lambda x: x.order)
         return hooks
 
 step_cache = {}
@@ -387,7 +389,7 @@ def import_steps(other):
 def hook_decorator(cb_type):
     """ Decorator to wrap hook definitions in. Registers hook. """
     def decorator_wrapper(*tags_or_func):
-        if len(tags_or_func) == 1 and callable(tags_or_func[0]):
+        if len(tags_or_func) == 1 and six.callable(tags_or_func[0]):
             # No tags were passed to this decorator
             func = tags_or_func[0]
             return HookImpl(cb_type, func)

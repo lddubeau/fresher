@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
 
+import six
+
 from freshen.test.base import FreshenTestCase
 
 from twisted.trial.unittest import TestCase
@@ -47,7 +49,7 @@ class TwistedTestCase(FreshenTestCase, TestCase):
     def _run_deferred(self, callbacks):
         """Create a chain of deferred function calls
         and events.
-        
+
         Returns: Deferred"""
         start_chain = Deferred()
         deferreds = [start_chain]
@@ -57,7 +59,7 @@ class TwistedTestCase(FreshenTestCase, TestCase):
             if isinstance(result, Deferred):
                 # Collect deferred events
                 deferreds.append(result)
-            elif callable(result):
+            elif six.callable(result):
                 # Collect deferred function calls
                 deferreds[-1].addCallback(result)
 
@@ -67,4 +69,3 @@ class TwistedTestCase(FreshenTestCase, TestCase):
         # Wait for async events.
         for deferred in deferreds:
             yield deferred
-

@@ -1,3 +1,5 @@
+import six
+
 from freshen import *
 from friends import find_user
 
@@ -8,7 +10,7 @@ def combinations(iterable, r):
     n = len(pool)
     if r > n:
         return
-    indices = range(r)
+    indices = range(r) if not six.PY3 else list(range(r))
     yield tuple(pool[i] for i in indices)
     while True:
         for i in reversed(range(r)):
@@ -42,5 +44,3 @@ def check_friends(user, friend):
 def check_all_friends( user_list ):
     for user1, user2 in combinations( user_list, 2 ):
         assert user1.is_friends_with( user2 )
-    
-

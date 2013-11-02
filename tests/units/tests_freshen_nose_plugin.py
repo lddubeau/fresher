@@ -3,6 +3,8 @@ import unittest
 import os
 import sys
 
+import six
+
 from freshen.noseplugin import FreshenNosePlugin
 from optparse import OptionParser
 
@@ -27,13 +29,13 @@ class TestFreshenTestCaseName(unittest.TestCase):
     def test_should_use_feature_name_as_class_name_when_subclassing_FreshenTestCase(self):
         plugin = self._make_plugin()
         test_generator = plugin.loadTestsFromFile(self.cur_dir + '/resources/valid_no_tags_no_use_only.feature')
-        test_instance = test_generator.next()
+        test_instance = six.next(test_generator)
 
         self.assertEquals(test_instance.__class__.__name__, 'Independence of the counter.')
 
     def test_should_use_scenario_name_as_method_name_when_subclassing_FreshenTestCase(self):
         plugin = self._make_plugin()
         test_generator = plugin.loadTestsFromFile(self.cur_dir + '/resources/valid_no_tags_no_use_only.feature')
-        test_instance = test_generator.next()
+        test_instance = six.next(test_generator)
 
         self.assertNotEqual(getattr(test_instance, 'Print counter', None), None)

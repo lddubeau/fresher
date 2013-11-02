@@ -6,6 +6,8 @@ import shlex
 import subprocess
 import re
 
+import six
+
 @Before
 def before(scenario):
     scc.cwd = os.getcwd()
@@ -21,6 +23,8 @@ def run_nose(args):
     command = ['nosetests', '-c', '/dev/null', '--with-freshen'] + args_list
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     scc.output, _ = process.communicate()
+    if six.PY3:
+        scc.output = scc.output.decode("utf8")
     scc.status = process.returncode
     scc.output = _normalize_newlines(scc.output)
     scc.output = scc.output.rstrip()
@@ -66,10 +70,17 @@ def _check_outcome_with(exp_output, exp_status):
         exp_output = exp_output.replace("{traceback_trace}", scc.traceback)
     assert_equals(exp_output, scc.output)
 
+
+undefined_step_re = re.compile(r'\bfreshen\.stepregistry\.UndefinedStepImpl\b')
+
 @Then("^it should (pass|fail) with$")
 def step_impl(exp_output, exp_status):
     # Strip color codes out first, we don't care
     scc.output = re.sub("\033\\[[0-9]*m", '', scc.output)
+    # Python 3 prints out the full path name to the exception.
+    if six.PY3:
+        scc.output = undefined_step_re.sub(
+            'UndefinedStepImpl', scc.output)
     return _check_outcome_with(exp_output, exp_status)
 
 @Then("^it should (pass|fail) with colorized output$")
@@ -96,8 +107,8 @@ status_tests = {
 
 @Then("^it should report (\w+) from (\w+) as (passed|failed|undefined)$")
 def check_xunit_report(scenario, feature, exp_status):
-    testcase = filter(  lambda t: t.getAttribute('classname') == 'freshen.noseplugin.' + feature and
-                                  t.getAttribute('name') == scenario,
-                        scc.xunit_report.getElementsByTagName('testcase'))[0]
+    testcase = [t for t in scc.xunit_report.getElementsByTagName('testcase')
+                if (t.getAttribute('classname') == 'freshen.noseplugin.' +
+                    feature and t.getAttribute('name') == scenario)][0]
 
     assert_true(status_tests[exp_status](testcase))

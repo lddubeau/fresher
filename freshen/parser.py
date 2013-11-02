@@ -3,16 +3,17 @@
 # This line ensures that frames from this file will not be shown in tracebacks
 __unittest = 1
 
-from pyparsing import *
+from pyparsing import * # pylint: disable=W0401,W0614
 import copy
 import logging
 import os
-import re
 import textwrap
+import six
+import codecs
 
 try:
     from os.path import relpath
-except Exception, e:
+except ImportError:
     from freshen.compat import relpath
 
 log = logging.getLogger('freshen')
@@ -122,7 +123,7 @@ class Step(object):
 
     def set_values(self, value_dict):
         result = copy.deepcopy(self)
-        for name, value in value_dict.iteritems():
+        for name, value in six.iteritems(value_dict):
             result.match = result.match.replace("<%s>" % name, value)
         return result
 
@@ -273,7 +274,7 @@ def grammar(fname, l, convert=True, base_line=0):
 def parse_file(fname, language, convert=True):
     feature, _ = grammar(fname, language, convert)
     try:
-        file_obj = open(fname)
+        file_obj = codecs.open(fname, encoding='utf8')
         if convert:
             feat = feature.parseFile(file_obj)[0]
         else:
@@ -288,4 +289,3 @@ def parse_steps(spec, fname, base_line, language, convert=True):
         return steps.parseString(spec)[0]
     else:
         return steps.parseString(spec)
-

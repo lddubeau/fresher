@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from __future__ import print_function
 
 from os.path import abspath, commonprefix, sep, pardir, join
 import os
@@ -19,9 +20,9 @@ def relpath(path, start=curdir):
     rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
     if not rel_list:
         return curdir
-    return join(*rel_list)
+    return join(*rel_list) # pylint: disable=W0142
 
-    
+
 if __name__ == "__main__":
-    print relpath("/tmp/dir1/file", "/tmp")
-    print relpath("/tmp/dir1/file", "/usr")
+    print(relpath("/tmp/dir1/file", "/tmp"))
+    print(relpath("/tmp/dir1/file", "/usr"))

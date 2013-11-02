@@ -1,5 +1,6 @@
+@twisted
 Feature: Asynchronous Testing
-  In order to test event-based applications with freshen 
+  In order to test event-based applications with freshen
   As a developer and freshen user
   I want to be able to execute tests that return their results asynchronously
 

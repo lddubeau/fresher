@@ -1,15 +1,17 @@
 #-*- coding: utf-8 -*-
-
+from __future__ import print_function
 import sys
 import os
 import logging
 import re
-from new import instancemethod
+from types import MethodType
+
+import six
 
 from pyparsing import ParseException
 
 from nose.plugins import Plugin
-from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
+from nose.plugins.errorclass import ErrorClassPlugin
 from nose.selector import TestAddress
 from nose.failure import Failure
 from nose.util import isclass
@@ -113,7 +115,7 @@ class FreshenNosePlugin(Plugin):
         self.impl_loader = StepImplLoader()
         self.topdir = os.getcwd()
         if not self.language:
-            print >> sys.stderr, "Error: language '%s' not available" % options.language
+            print("Error: language '%s' not available" % options.language, file=sys.stderr)
             exit(1)
         if options.list_undefined:
             self.undefined_steps = []
@@ -154,7 +156,9 @@ class FreshenNosePlugin(Plugin):
             except ImportError:
                 from freshen.test.pyunit import PyunitTestCase
                 self._test_class = PyunitTestCase
-        return type(feature.name, (self._test_class, ), {scenario.name: lambda self: self.runScenario()})
+        name = feature.name.encode('utf8') if not six.PY3 else feature.name
+        return type(name, (self._test_class, ),
+                    {scenario.name: lambda self: self.runScenario()})
 
 
     def loadTestsFromFile(self, filename, indexes=[]):
@@ -164,7 +168,7 @@ class FreshenNosePlugin(Plugin):
         try:
             feat = load_feature(filename, self.language)
             path = os.path.dirname(filename)
-        except ParseException, e:
+        except ParseException as e:
             _, _, tb = sys.exc_info()
             yield ParseFailure(e, tb, filename)
             return
@@ -172,7 +176,7 @@ class FreshenNosePlugin(Plugin):
         try:
             self.impl_loader.load_steps_impl(step_registry, self.topdir,
                                              path, feat.use_step_defs)
-        except StepImplLoadException, e:
+        except StepImplLoadException as e:
             yield StepsLoadFailure(address=TestAddress(filename), *e.exc)
             return
 
@@ -228,12 +232,14 @@ class FreshenNosePlugin(Plugin):
             if ec is ExceptionWrapper and isinstance(ev, Exception):
                 orig_ec, orig_ev, orig_tb = ev.e
                 message = "%s\n\n%s" % (str(orig_ev), self._formatSteps(test, ev.step))
-                return (orig_ec, message, orig_tb)
+                return (orig_ec, Exception(message), orig_tb)
             elif not ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
                 message = "%s\n\n%s" % (str(ev), self._formatSteps(test, test.test.last_step))
-                return (ec, message, tb)
+                return (ec, Exception(message), tb)
             elif ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
-                return (ec, ev, None)
+                # Create a new instance that will not have a traceback.
+                # Otherwise, Python 3 insists on printing the traceback.
+                return (ec, UndefinedStepImpl(ev.step), None)
 
         return err
 
@@ -250,7 +256,7 @@ class FreshenNosePlugin(Plugin):
                     plugin.undefined_steps.append((test, ec, ev, tb))
                 self._old_addError(test, err)
             result._old_addError = result.addError
-            result.addError = instancemethod(_addError, result, result.__class__)
+            result.addError = MethodType(_addError, result)
 
     def report(self, stream):
         if self.undefined_steps:
