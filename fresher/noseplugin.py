@@ -93,7 +93,7 @@ class FresherNosePlugin(Plugin):
                                "match the given tags. Should be a comma-separated "
                                "list. Each tag can be prefixed with a ~ to negate "
                                "[NOSE_FRESHER_TAGS]")
-        parser.add_option('--language',
+        parser.add_option('--fresher-language',
                           action="store",
                           dest='language',
                           default='en',
