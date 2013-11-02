@@ -3,7 +3,7 @@ Feature: List undefined steps
   It is useful to see a report of undefined steps encountered in a test run
 
   Scenario: List undefined
-    When I run nose -v --fresher-tags @one --list-undefined examples/self_test
+    When I run nose -v --fresher-tags @one --fresher-list-undefined examples/self_test
     Then it should fail with colorized output
         """
         Sample: Missing ... UNDEFINED: "missing" # examples{sep}self_test{sep}features{sep}sample.feature:7

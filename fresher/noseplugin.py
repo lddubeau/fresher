@@ -98,7 +98,7 @@ class FresherNosePlugin(Plugin):
                           dest='language',
                           default='en',
                           help='Change the language used when reading the feature files')
-        parser.add_option('--list-undefined',
+        parser.add_option('--fresher-list-undefined',
                           action="store_true",
                           default=env.get('NOSE_FRESHER_LIST_UNDEFINED') == '1',
                           dest="list_undefined",
