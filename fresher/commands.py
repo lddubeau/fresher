@@ -2,8 +2,8 @@ from __future__ import print_function
 import sys
 import os
 
-from freshen.core import TagMatcher, load_language, load_feature
-from freshen.stepregistry import StepImplLoader, StepImplRegistry
+from fresher.core import TagMatcher, load_language, load_feature
+from fresher.stepregistry import StepImplLoader, StepImplRegistry
 
 LANGUAGE = 'en'
 

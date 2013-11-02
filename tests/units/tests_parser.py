@@ -6,8 +6,8 @@ import unittest
 
 import six
 
-from freshen.core import load_language
-from freshen.parser import parse_file
+from fresher.core import load_language
+from fresher.parser import parse_file
 
 import os
 

@@ -1,9 +1,9 @@
-Feature: Freshen core
+Feature: Fresher core
   In order to write better software
   Developers should be able to execute requirements as tests
 
   Scenario: Run single scenario with missing step definition, allow undefined
-    When I run nose --freshen-allow-undefined examples/self_test/features/sample.feature:1
+    When I run nose --fresher-allow-undefined examples/self_test/features/sample.feature:1
     Then it should pass with
         """
         U
@@ -41,7 +41,7 @@ Feature: Freshen core
         """
 
   Scenario: Run all with verbose formatter
-    When I run nose -v --freshen-allow-undefined examples/self_test/features/sample.feature
+    When I run nose -v --fresher-allow-undefined examples/self_test/features/sample.feature
     Then it should fail with
         """
         Sample: Missing ... UNDEFINED: "missing" # examples{sep}self_test{sep}features{sep}sample.feature:7
@@ -71,7 +71,7 @@ Feature: Freshen core
         """
 
   Scenario: Run scenario outline steps only
-    When I run nose -v --freshen-allow-undefined examples/self_test/features/outline_sample.feature:2:3:4:5
+    When I run nose -v --fresher-allow-undefined examples/self_test/features/outline_sample.feature:2:3:4:5
     Then it should fail with
         """
         Outline Sample: Test state ... UNDEFINED: "missing without a table" # examples{sep}self_test{sep}features{sep}outline_sample.feature:6
@@ -101,7 +101,7 @@ Feature: Freshen core
         """
 
   Scenario: Find feature files in nested directories
-    When I run nose -v --freshen-allow-undefined --tags nested examples/self_test/features
+    When I run nose -v --fresher-allow-undefined --tags nested examples/self_test/features
     Then it should pass with
         """
         A feature in a subdirectory: Passing ... ok

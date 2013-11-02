@@ -4,11 +4,11 @@
 # with Cucumber commandline
 
 import os
-from freshen.context import *
-from freshen.core import TagMatcher, StepsRunner, load_feature, load_language
-from freshen.stepregistry import StepImplLoader, StepImplRegistry, UndefinedStepImpl, AmbiguousStepImpl
+from fresher.context import *
+from fresher.core import TagMatcher, StepsRunner, load_feature, load_language
+from fresher.stepregistry import StepImplLoader, StepImplRegistry, UndefinedStepImpl, AmbiguousStepImpl
 
-class FreshenHandler(object):
+class FresherHandler(object):
 
     def before_feature(self, feature):
         pass
@@ -41,7 +41,7 @@ class FreshenHandler(object):
         pass
 
 
-class FreshenHandlerProxy(object):
+class FresherHandlerProxy(object):
     """ Acts as a handler and proxies callback events to a list of actual handlers. """
 
     def __init__(self, handlers):
@@ -124,7 +124,7 @@ def load_features(paths, language):
 if __name__ == "__main__":
     import sys
     import logging
-    from freshen.handlers import ConsoleHandler
+    from fresher.handlers import ConsoleHandler
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -133,5 +133,5 @@ if __name__ == "__main__":
     language = load_language('en')
     registry = load_step_definitions(paths)
     features = load_features(paths, language)
-    handler = FreshenHandlerProxy([ConsoleHandler()])
+    handler = FresherHandlerProxy([ConsoleHandler()])
     run_features(registry, features, handler)

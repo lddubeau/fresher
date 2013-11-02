@@ -1,5 +1,5 @@
-from freshen import *
-from freshen.checks import assert_equals
+from fresher import *
+from fresher.checks import assert_equals
 from examples.docu.document import Document
 
 @Given('a document of (\d+) pages?')

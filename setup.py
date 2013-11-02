@@ -7,23 +7,23 @@ except ImportError:
 from setuptools import setup
 
 setup(
-    name = "freshen",
+    name = "fresher",
     version = "0.2-ldd1",
     description = "Clone of the Cucumber BDD framework for Python",
     author = "Roman Lisagor",
-    author_email = "rlisagor+freshen@gmail.com",
-    url = "http://github.com/rlisagor/freshen",
+    author_email = "rlisagor+fresher@gmail.com",
+    url = "http://github.com/rlisagor/fresher",
     license = "GPL",
-    packages = ["freshen", "freshen.test"],
-    package_data = {'freshen': ['languages.yml']},
+    packages = ["fresher", "fresher.test"],
+    package_data = {'fresher': ['languages.yml']},
     install_requires = ['pyparsing>=1.5.0', 'PyYAML', 'nose>=0.11.1'],
     entry_points = {
         'nose.plugins.0.10': [
-            'freshen = freshen.noseplugin:FreshenNosePlugin',
-            'freshenerr = freshen.noseplugin:FreshenErrorPlugin'
+            'fresher = fresher.noseplugin:FresherNosePlugin',
+            'freshererr = fresher.noseplugin:FresherErrorPlugin'
         ],
         'console_scripts': [
-            'freshen-list = freshen.commands:list_steps',
+            'fresher-list = fresher.commands:list_steps',
         ],
     },
     classifiers = [

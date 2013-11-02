@@ -3,8 +3,8 @@
 import traceback
 import sys
 
-from freshen.context import ftc, scc
-from freshen.stepregistry import UndefinedStepImpl
+from fresher.context import ftc, scc
+from fresher.stepregistry import UndefinedStepImpl
 
 
 class ExceptionWrapper(Exception):
@@ -28,7 +28,7 @@ class FeatureSuite(object):
         ftc.clear()
 
 
-class FreshenTestCase(object):
+class FresherTestCase(object):
 
     start_live_server = True
     database_single_transaction = True

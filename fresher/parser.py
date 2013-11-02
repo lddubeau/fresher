@@ -14,9 +14,9 @@ import codecs
 try:
     from os.path import relpath
 except ImportError:
-    from freshen.compat import relpath
+    from fresher.compat import relpath
 
-log = logging.getLogger('freshen')
+log = logging.getLogger('fresher')
 
 class Feature(object):
 

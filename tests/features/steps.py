@@ -1,5 +1,5 @@
-from freshen import *
-from freshen.checks import *
+from fresher import *
+from fresher.checks import *
 
 import os
 import shlex
@@ -20,7 +20,7 @@ def set_eliminate_traceback(scenario):
 @When("^I run nose (.+)$")
 def run_nose(args):
     args_list = shlex.split(args)
-    command = ['nosetests', '-c', '/dev/null', '--with-freshen'] + args_list
+    command = ['nosetests', '-c', '/dev/null', '--with-fresher'] + args_list
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     scc.output, _ = process.communicate()
     if six.PY3:
@@ -71,7 +71,7 @@ def _check_outcome_with(exp_output, exp_status):
     assert_equals(exp_output, scc.output)
 
 
-undefined_step_re = re.compile(r'\bfreshen\.stepregistry\.UndefinedStepImpl\b')
+undefined_step_re = re.compile(r'\bfresher\.stepregistry\.UndefinedStepImpl\b')
 
 @Then("^it should (pass|fail) with$")
 def step_impl(exp_output, exp_status):
@@ -99,16 +99,16 @@ status_tests = {
     'passed': lambda t: not t.hasChildNodes(),
     'failed': lambda t: t.hasChildNodes() and
                         t.firstChild.hasAttributes() and
-                        not t.firstChild.getAttribute('type').startswith('freshen'),
+                        not t.firstChild.getAttribute('type').startswith('fresher'),
     'undefined': lambda t:  t.hasChildNodes() and
                             t.firstChild.hasAttributes() and
-                            t.firstChild.getAttribute('type') == 'freshen.stepregistry.UndefinedStepImpl'
+                            t.firstChild.getAttribute('type') == 'fresher.stepregistry.UndefinedStepImpl'
 }
 
 @Then("^it should report (\w+) from (\w+) as (passed|failed|undefined)$")
 def check_xunit_report(scenario, feature, exp_status):
     testcase = [t for t in scc.xunit_report.getElementsByTagName('testcase')
-                if (t.getAttribute('classname') == 'freshen.noseplugin.' +
+                if (t.getAttribute('classname') == 'fresher.noseplugin.' +
                     feature and t.getAttribute('name') == scenario)][0]
 
     assert_true(status_tests[exp_status](testcase))

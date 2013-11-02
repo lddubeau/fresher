@@ -16,11 +16,11 @@ from nose.selector import TestAddress
 from nose.failure import Failure
 from nose.util import isclass
 
-from freshen.core import TagMatcher, load_language, load_feature, StepsRunner
-from freshen.prettyprint import FreshenPrettyPrint
-from freshen.stepregistry import StepImplLoader, StepImplRegistry
-from freshen.stepregistry import UndefinedStepImpl, StepImplLoadException
-from freshen.test.base import FeatureSuite, FreshenTestCase, ExceptionWrapper
+from fresher.core import TagMatcher, load_language, load_feature, StepsRunner
+from fresher.prettyprint import FresherPrettyPrint
+from fresher.stepregistry import StepImplLoader, StepImplRegistry
+from fresher.stepregistry import UndefinedStepImpl, StepImplLoadException
+from fresher.test.base import FeatureSuite, FresherTestCase, ExceptionWrapper
 
 try:
     # use colorama for cross-platform colored text, if available
@@ -29,31 +29,31 @@ try:
 except ImportError:
     colorama = None
 
-log = logging.getLogger('nose.plugins.freshen')
+log = logging.getLogger('nose.plugins.fresher')
 
 # This line ensures that frames from this file will not be shown in tracebacks
 __unittest = 1
 
 
-class FreshenErrorPlugin(ErrorClassPlugin):
+class FresherErrorPlugin(ErrorClassPlugin):
 
     enabled = True
 
     def options(self, parser, env):
-        parser.add_option('--freshen-allow-undefined',
+        parser.add_option('--fresher-allow-undefined',
                           action="store_true",
-                          default=env.get("NOSE_FRESHEN_ALLOW_UNDEFINED") == '1',
+                          default=env.get("NOSE_FRESHER_ALLOW_UNDEFINED") == '1',
                           dest="allow_undefined",
                           help="Allow undefined steps."
-                          "[NOSE_FRESHEN_ALLOW_UNDEFINED]")
+                          "[NOSE_FRESHER_ALLOW_UNDEFINED]")
 
     def configure(self, options, config):
-        super(FreshenErrorPlugin, self).configure(options, config)
+        super(FresherErrorPlugin, self).configure(options, config)
         if options.list_undefined:
             options.allow_undefined = True
         # This bypasses the 'attr = ErrorClass(...)' method of declaring error
         # classes.
-        FreshenErrorPlugin.errorClasses = \
+        FresherErrorPlugin.errorClasses = \
             ((UndefinedStepImpl,
               ("undefined", "UNDEFINED", not options.allow_undefined)), )
 
@@ -75,24 +75,24 @@ class ParseFailure(Failure):
     def __str__(self):
         return "Could not parse %s" % (self.filename)
 
-class FreshenNosePlugin(Plugin):
+class FresherNosePlugin(Plugin):
 
-    name = "freshen"
+    name = "fresher"
 
-    # This makes it so that freshen's formatFailure gets called before capture
+    # This makes it so that fresher's formatFailure gets called before capture
     # and logcapture - those plugins replace and obscure the true exception value
     score = 1000
 
     def options(self, parser, env):
-        super(FreshenNosePlugin, self).options(parser, env)
+        super(FresherNosePlugin, self).options(parser, env)
 
         parser.add_option('--tags', action='store',
                           dest='tags',
-                          default=env.get('NOSE_FRESHEN_TAGS'),
+                          default=env.get('NOSE_FRESHER_TAGS'),
                           help="Run only those scenarios and features which "
                                "match the given tags. Should be a comma-separated "
                                "list. Each tag can be prefixed with a ~ to negate "
-                               "[NOSE_FRESHEN_TAGS]")
+                               "[NOSE_FRESHER_TAGS]")
         parser.add_option('--language',
                           action="store",
                           dest='language',
@@ -100,15 +100,15 @@ class FreshenNosePlugin(Plugin):
                           help='Change the language used when reading the feature files')
         parser.add_option('--list-undefined',
                           action="store_true",
-                          default=env.get('NOSE_FRESHEN_LIST_UNDEFINED') == '1',
+                          default=env.get('NOSE_FRESHER_LIST_UNDEFINED') == '1',
                           dest="list_undefined",
                           help=("Make a report of all undefined steps that "
-                                "freshen encounters when running scenarios. "
-                                "(Implies --freshen-allow-undefined.) "
-                               "[NOSE_FRESHEN_LIST_UNDEFINED]"))
+                                "fresher encounters when running scenarios. "
+                                "(Implies --fresher-allow-undefined.) "
+                               "[NOSE_FRESHER_LIST_UNDEFINED]"))
 
     def configure(self, options, config):
-        super(FreshenNosePlugin, self).configure(options, config)
+        super(FresherNosePlugin, self).configure(options, config)
         all_tags = options.tags.split(",") if options.tags else []
         self.tagmatcher = TagMatcher(all_tags)
         self.language = load_language(options.language)
@@ -124,7 +124,7 @@ class FreshenNosePlugin(Plugin):
         self._test_class = None
 
     def wantDirectory(self, dirname):
-        if not os.path.exists(os.path.join(dirname, ".freshenignore")):
+        if not os.path.exists(os.path.join(dirname, ".fresherignore")):
             return True
         return None
 
@@ -151,10 +151,10 @@ class FreshenNosePlugin(Plugin):
         on a per-feature basis."""
         if self._test_class is None:
             try:
-                from freshen.test.async import TwistedTestCase
+                from fresher.test.async import TwistedTestCase
                 self._test_class = TwistedTestCase
             except ImportError:
-                from freshen.test.pyunit import PyunitTestCase
+                from fresher.test.pyunit import PyunitTestCase
                 self._test_class = PyunitTestCase
         name = feature.name.encode('utf8') if not six.PY3 else feature.name
         return type(name, (self._test_class, ),
@@ -223,11 +223,11 @@ class FreshenNosePlugin(Plugin):
         return (name_without_indexes, indexes)
 
     def describeTest(self, test):
-        if isinstance(test.test, FreshenTestCase):
+        if isinstance(test.test, FresherTestCase):
             return test.test.description
 
     def formatFailure(self, test, err):
-        if hasattr(test, 'test') and isinstance(test.test, FreshenTestCase):
+        if hasattr(test, 'test') and isinstance(test.test, FresherTestCase):
             ec, ev, tb = err
             if ec is ExceptionWrapper and isinstance(ev, Exception):
                 orig_ec, orig_ev, orig_tb = ev.e
@@ -276,18 +276,18 @@ class FreshenNosePlugin(Plugin):
 
     def _formatSteps(self, test, failed_step, failure=True):
         ret = []
-        ret.append(FreshenPrettyPrint.feature(test.test.feature))
-        ret.append(FreshenPrettyPrint.scenario(test.test.scenario))
+        ret.append(FresherPrettyPrint.feature(test.test.feature))
+        ret.append(FresherPrettyPrint.scenario(test.test.scenario))
         found = False
         for step in test.test.scenario.iter_steps():
             if step == failed_step:
                 found = True
                 if failure:
-                    ret.append(FreshenPrettyPrint.step_failed(step))
+                    ret.append(FresherPrettyPrint.step_failed(step))
                 else:
-                    ret.append(FreshenPrettyPrint.step_undefined(step))
+                    ret.append(FresherPrettyPrint.step_undefined(step))
             elif found:
-                ret.append(FreshenPrettyPrint.step_notrun(step))
+                ret.append(FresherPrettyPrint.step_notrun(step))
             else:
-                ret.append(FreshenPrettyPrint.step_passed(step))
+                ret.append(FresherPrettyPrint.step_passed(step))
         return "\n".join(ret)

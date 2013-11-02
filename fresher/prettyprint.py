@@ -41,7 +41,7 @@ def colored(text, colorspec):
     result += text + "\033[0m"
     return result
 
-class FreshenPrettyPrint(object):
+class FresherPrettyPrint(object):
     @classmethod
     def feature(cls, feature):
         ret = []

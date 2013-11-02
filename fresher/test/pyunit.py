@@ -1,15 +1,15 @@
 #-*- coding: utf-8 -*-
 
-from freshen.test.base import FreshenTestCase
+from fresher.test.base import FresherTestCase
 
 from unittest import TestCase
 
 
-class PyunitTestCase(FreshenTestCase, TestCase):
+class PyunitTestCase(FresherTestCase, TestCase):
     """Support PyUnit tests."""
 
     def __init__(self, step_runner, step_registry, feature, scenario, feature_suite):
-        FreshenTestCase.__init__(self, step_runner, step_registry,
+        FresherTestCase.__init__(self, step_runner, step_registry,
                                  feature, scenario, feature_suite)
         TestCase.__init__(self, scenario.name)
 

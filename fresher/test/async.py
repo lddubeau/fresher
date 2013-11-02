@@ -2,12 +2,12 @@
 
 import six
 
-from freshen.test.base import FreshenTestCase
+from fresher.test.base import FresherTestCase
 
 from twisted.trial.unittest import TestCase
 from twisted.internet.defer import inlineCallbacks, Deferred
 
-class TwistedTestCase(FreshenTestCase, TestCase):
+class TwistedTestCase(FresherTestCase, TestCase):
     """Support asynchronous feature tests."""
 
     timeout = 240
@@ -15,7 +15,7 @@ class TwistedTestCase(FreshenTestCase, TestCase):
     # pylint: disable=R0913
     def __init__(self, step_runner, step_registry,
                  feature, scenario, feature_suite):
-        FreshenTestCase.__init__(self, step_runner, step_registry,
+        FresherTestCase.__init__(self, step_runner, step_registry,
                                  feature, scenario, feature_suite)
         TestCase.__init__(self, scenario.name)
 

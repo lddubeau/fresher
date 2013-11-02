@@ -2,8 +2,8 @@
 Independant steps for one.
 """
 
-from freshen import *
-from freshen.checks import *
+from fresher import *
+from fresher.checks import *
 
 from examples.counter_independence import counter
 

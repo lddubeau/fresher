@@ -1,3 +1,3 @@
-from freshen.stepregistry import import_steps
+from fresher.stepregistry import import_steps
 
 import_steps("..nested.steps")

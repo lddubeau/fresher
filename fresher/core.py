@@ -7,8 +7,8 @@ import inspect
 import os
 import yaml
 
-from freshen.context import *
-from freshen.parser import parse_steps, parse_file
+from fresher.context import *
+from fresher.parser import parse_steps, parse_file
 
 
 class StepsRunner(object):

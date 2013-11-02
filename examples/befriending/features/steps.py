@@ -1,4 +1,4 @@
-from freshen import *
+from fresher import *
 from friends import find_user
 
 @Transform(r'^user (\w+)$')

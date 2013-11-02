@@ -1,7 +1,7 @@
 @twisted
 Feature: Asynchronous Testing
-  In order to test event-based applications with freshen
-  As a developer and freshen user
+  In order to test event-based applications with fresher
+  As a developer and fresher user
   I want to be able to execute tests that return their results asynchronously
 
   # This scenario requires twisted to work correctly

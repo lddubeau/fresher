@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
-from freshen import *
-from freshen.checks import *
+from fresher import *
+from fresher.checks import *
 
 import calculator
 

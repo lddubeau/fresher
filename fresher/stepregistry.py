@@ -12,7 +12,7 @@ import six
 __all__ = ['Given', 'When', 'Then', 'Before', 'After', 'AfterStep', 'Transform', 'NamedTransform']
 __unittest = 1
 
-log = logging.getLogger('freshen')
+log = logging.getLogger('fresher')
 
 class AmbiguousStepImpl(Exception):
 
@@ -129,12 +129,12 @@ class StepImplLoadException(Exception):
 
 class StepImplLoader(object):
     # Create a package in which we'll load all the steps modules
-    if "freshen.steps" not in sys.modules:
-        steps_pkg = imp.new_module("freshen.steps")
+    if "fresher.steps" not in sys.modules:
+        steps_pkg = imp.new_module("fresher.steps")
         steps_pkg.__path__ = []
-        sys.modules["freshen.steps"] = steps_pkg
+        sys.modules["fresher.steps"] = steps_pkg
     else:
-        raise Exception("freshen.steps already defined!")
+        raise Exception("fresher.steps already defined!")
 
     def __init__(self):
         self.modules = {}
@@ -162,7 +162,7 @@ class StepImplLoader(object):
                 actual_module_name = os.path.basename(module_name)
                 complete_path = os.path.join(path, os.path.dirname(module_name))
 
-                # We still do this to emulate the behavior of freshen so that
+                # We still do this to emulate the behavior of fresher so that
                 # we just return if the module does not exist at all rather
                 # than raise an error. Maybe this should be changed...
                 try:

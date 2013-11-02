@@ -1,6 +1,6 @@
 import six
 
-from freshen import *
+from fresher import *
 from friends import find_user
 
 def combinations(iterable, r):

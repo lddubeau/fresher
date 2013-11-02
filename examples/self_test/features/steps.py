@@ -1,4 +1,4 @@
-from freshen import *
+from fresher import *
 from nose.tools import *
 
 def flunker():
