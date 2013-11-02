@@ -3,6 +3,16 @@ Fresher
 
 Differences from Freshen:
 
+* All arguments that are specific to Fresher begins with ``--fresher-`` so:
+
+  - ``--tags`` is now ``--fresher-tags``
+  - ``--language`` is now ``--fresher-language``
+  - ``--list-undefined`` is now ``--fresher-list-undefined``
+
+  This change allows using fresher and freshen together in the same
+  installation, and reduces the chances of conflicts with other nose
+  plugins in the future.
+
 * Undefined steps are fatal errors unless you pass --fresher-allow-undefined.
 
 * Freshen would load steps files under fake module names. Fresher
