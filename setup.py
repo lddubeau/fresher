@@ -8,15 +8,21 @@ from setuptools import setup
 
 setup(
     name = "fresher",
-    version = "0.2-ldd1",
-    description = "Clone of the Cucumber BDD framework for Python",
-    author = "Roman Lisagor",
-    author_email = "rlisagor+fresher@gmail.com",
-    url = "http://github.com/rlisagor/fresher",
+    version = "0.3.0",
+    description = ("Clone of the Cucumber BDD framework for Python forked "
+                   "from Freshen"),
+    author = "Louis-Dominique Dubeau",
+    author_email = "ldd@lddubeau.com",
+    url = "http://github.com/lddubeau/fresher",
     license = "GPL",
     packages = ["fresher", "fresher.test"],
     package_data = {'fresher': ['languages.yml']},
-    install_requires = ['pyparsing>=1.5.0', 'PyYAML', 'nose>=0.11.1'],
+    install_requires = [
+        'pyparsing>=1.5.0',
+        'PyYAML',
+        'nose>=0.11.1',
+        'six'
+    ],
     entry_points = {
         'nose.plugins.0.10': [
             'fresher = fresher.noseplugin:FresherNosePlugin',
@@ -28,10 +34,13 @@ setup(
     },
     classifiers = [
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Operating System :: OS Independent",
+        "Environment :: Plugins",
         "Intended Audience :: Developers",
-        "Programming Language :: Python",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development :: Quality Assurance",
         "Topic :: Software Development :: Testing",
     ]
 )
