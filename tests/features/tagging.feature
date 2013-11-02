@@ -2,7 +2,7 @@ Feature: Tagging
   It is often useful to group scenarios or features by topic, status, etc
 
   Scenario: Run with a tag that exists on 2 scenarios
-    When I run nose -v --tags three --fresher-allow-undefined examples/self_test/features
+    When I run nose -v --fresher-tags three --fresher-allow-undefined examples/self_test/features
     Then it should pass with
         """
         Sample: Missing ... UNDEFINED: "missing" # examples{sep}self_test{sep}features{sep}sample.feature:7
@@ -15,7 +15,7 @@ Feature: Tagging
         """
 
   Scenario: Run with a tag that exists on 3 feature
-    When I run nose -v --tags @one --fresher-allow-undefined examples/self_test
+    When I run nose -v --fresher-tags @one --fresher-allow-undefined examples/self_test
     Then it should fail with
         """
         Sample: Missing ... UNDEFINED: "missing" # examples{sep}self_test{sep}features{sep}sample.feature:7
@@ -45,7 +45,7 @@ Feature: Tagging
         """
 
   Scenario: Run with a negative tag
-    When I run nose -v --tags ~three examples/self_test/features/sample.feature
+    When I run nose -v --fresher-tags ~three examples/self_test/features/sample.feature
     Then it should fail with
     """
     Sample: Failing ... ERROR
@@ -74,7 +74,7 @@ Feature: Tagging
 
 
   Scenario: Run with a negative feature tag
-    When I run nose -v --tags ~pending examples/counter_independence/features/independent_four.feature
+    When I run nose -v --fresher-tags ~pending examples/counter_independence/features/independent_four.feature
     Then it should pass with
     """
 

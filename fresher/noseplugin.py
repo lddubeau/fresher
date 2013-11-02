@@ -86,7 +86,7 @@ class FresherNosePlugin(Plugin):
     def options(self, parser, env):
         super(FresherNosePlugin, self).options(parser, env)
 
-        parser.add_option('--tags', action='store',
+        parser.add_option('--fresher-tags', action='store',
                           dest='tags',
                           default=env.get('NOSE_FRESHER_TAGS'),
                           help="Run only those scenarios and features which "

@@ -101,7 +101,7 @@ Feature: Fresher core
         """
 
   Scenario: Find feature files in nested directories
-    When I run nose -v --fresher-allow-undefined --tags nested examples/self_test/features
+    When I run nose -v --fresher-allow-undefined --fresher-tags nested examples/self_test/features
     Then it should pass with
         """
         A feature in a subdirectory: Passing ... ok
