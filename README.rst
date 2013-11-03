@@ -1,7 +1,15 @@
 Fresher
 =======
 
+Fresher is a fork of Freshen. As of Fall of 2013, Freshen appeared to
+no longer being maintained, so I decided to fork and make some much
+needed changes.
+
 Differences from Freshen:
+
+* Fresher is tested against Python 3.
+
+* The file to get Fresher to ignore a directory is ``.fresherignore``.
 
 * All arguments that are specific to Fresher begins with ``--fresher-`` so:
 
@@ -19,7 +27,7 @@ Differences from Freshen:
   loads the whole shebang under ``freshen.steps``.
 
 .. warning:: Do not have a steps module loaded by Fresher also be
-             loaded by no-step modules.  (A no-step module is one wich
+             loaded by no-step modules.  (A no-step module is one which
              does not implement steps). Here's a scenario where you
              could run into trouble: module A ``features/steps`` loads
              module B ``features/util`` (a nostep module) which loads
@@ -81,7 +89,7 @@ Differences from Freshen:
 
 * Generally speaking, the ``from ... import *`` method of making steps
   accessible in another module, which worked fine in Freshen, does not
-  work in Fresher. It worked in Freshen because Frenshen would
+  work in Fresher. It worked in Freshen because Freshen would
   determine the steps defined in a module by scanning the module's
   *global symbols*. This cannot work with Fresher because it allows
   duplicate function names. (If ``@given('a')`` and ``@given('b')``
@@ -101,6 +109,9 @@ Differences from Freshen:
     from freshen.stepregistry import import_steps
 
     import_steps("..nested.steps")
+
+The old documentation follows. Keep in mind the differences
+above. Eventually, this will all be rewritten for Fresher.
 
 Freshen
 =======
@@ -406,7 +417,7 @@ we may need to convert "user bob" to the the object User(name='bob') and
 the "Do Not Repeat Yourself (DRY)" principle of good software development. Step
 Argument Transforms allow you to specify an automatic transformation for
 arguments if they match a certain regular expression. These transforms are
-created in the step defitnion file. For example::
+created in the step definition file. For example::
 
     @Transform(r"^user (\w+)$")
     def transform_user(name):
@@ -450,14 +461,14 @@ The following definitions can be used::
 
 The arguments to `NamedTransform` are `name`, `in_pattern` and
 `out_pattern`, respectively. `NamedTranform` is equivalent to having
-`in_pattern` substituted for all occurances of `name` in step
+`in_pattern` substituted for all occurrences of `name` in step
 specifications, and defining a standard `Transform` with
 `out_pattern` as its pattern.
 
 The distinction between `in_pattern` and `out_pattern` is that the
 `in_pattern` can be used to match surrounding context to uniquely
 identify parameters, while the `out_pattern` searches within the text
-recognized by the `in_pattern` to pull out the semantially relevant
+recognized by the `in_pattern` to pull out the semantically relevant
 parts. When this distinction is not relevant, specify only one
 pattern, and it will be used for both in and out patterns.
 
@@ -514,11 +525,11 @@ Freshen now supports 30 languages, exactly the same as cucumber, since the
 acceptance tests may write it down in his/her mother tongue. The only exception is
 the new keyword for `specifying step definition modules`_ since it is not available
 in Cucumber_. For the moment, this keyword is available only in English, French,
-and Portugese. If you use another language, you must use the english keyword for this
+and Portuguese. If you use another language, you must use the English keyword for this
 particular keyword (or translate it and add it to the ``languages.yml`` file).
 
 The 'examples' directory contains a French sample. It's a simple translation of
-the english 'calc'. If you want to check the example, go to the 'calc_fr'
+the English 'calc'. If you want to check the example, go to the 'calc_fr'
 directory, and run::
 
     $ nosetests --with-freshen --language=fr
@@ -538,7 +549,7 @@ command like processing again?
 
 **Can I contribute?** - Yes, please! While the tool is currently a copy of Cucumber's syntax,
 there's no law that says it has to be that forever. If you have any ideas or suggestions (or bugs!),
-please feel free to let me know, or simply clone the repo and play around.
+please feel free to let me know, or simply clone the repository and play around.
 
 .. _`Source code`: http://github.com/rlisagor/freshen
 .. _`Nose`: http://somethingaboutorange.com/mrl/projects/nose/0.11.1/
@@ -549,3 +560,10 @@ please feel free to let me know, or simply clone the repo and play around.
 .. _`Selenium`: http://seleniumhq.org/
 .. _`Django`: http://www.djangoproject.com/
 .. _`django-sane-testing`: http://devel.almad.net/trac/django-sane-testing/
+
+..  LocalWords:  py init subpackage stepregistry defs Cloe sc scc num
+..  LocalWords:  calc getattr str Antipattern AfterStep glc ftc Lua
+..  LocalWords:  gcc doesnotexist Multi multi docstrings iterrows UI
+..  LocalWords:  adelaide samantha itertools NamedTransform slist
+..  LocalWords:  NamedTranform freshenignore Django django nosetests
+..  LocalWords:  djangoliveserver cherrypyliveserver doctests
