@@ -13,4 +13,3 @@ Feature: Sample
       """
       hello
       """
-

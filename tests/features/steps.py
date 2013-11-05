@@ -23,8 +23,7 @@ def run_nose(args):
     command = ['nosetests', '-c', '/dev/null', '--with-fresher'] + args_list
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     scc.output, _ = process.communicate()
-    if six.PY3:
-        scc.output = scc.output.decode("utf8")
+    scc.output = scc.output.decode("utf-8")
     scc.status = process.returncode
     scc.output = _normalize_newlines(scc.output)
     scc.output = scc.output.rstrip()

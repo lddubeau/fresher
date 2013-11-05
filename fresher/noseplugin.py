@@ -231,10 +231,18 @@ class FresherNosePlugin(Plugin):
             ec, ev, tb = err
             if ec is ExceptionWrapper and isinstance(ev, Exception):
                 orig_ec, orig_ev, orig_tb = ev.e
-                message = "%s\n\n%s" % (str(orig_ev), self._formatSteps(test, ev.step))
+                message = u"%s\n\n%s" % \
+                          (six.text_type(orig_ev),
+                           self._formatSteps(test, ev.step))
+                if not six.PY3:
+                    message = message.encode('utf-8')
                 return (orig_ec, Exception(message), orig_tb)
             elif not ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
-                message = "%s\n\n%s" % (str(ev), self._formatSteps(test, test.test.last_step))
+                message = u"%s\n\n%s" % \
+                          (six.text_type(ev),
+                           self._formatSteps(test, test.test.last_step))
+                if not six.PY3:
+                    message = message.encode('utf-8')
                 return (ec, Exception(message), tb)
             elif ec is UndefinedStepImpl and hasattr(test.test, 'last_step'):
                 # Create a new instance that will not have a traceback.
@@ -290,4 +298,4 @@ class FresherNosePlugin(Plugin):
                 ret.append(FresherPrettyPrint.step_notrun(step))
             else:
                 ret.append(FresherPrettyPrint.step_passed(step))
-        return "\n".join(ret)
+        return u"\n".join(ret)

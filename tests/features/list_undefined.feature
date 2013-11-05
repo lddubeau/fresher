@@ -14,9 +14,9 @@ Feature: List undefined steps
         ERROR: Sample: Failing
         ----------------------------------------------------------------------
         Traceback (most recent call last):
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 14, in failing
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 15, in failing
             flunker()
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 5, in flunker
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 7, in flunker
             raise Exception("FAIL")
         Exception: FAIL
 

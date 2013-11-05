@@ -13,7 +13,7 @@ Feature: Sample
       |a|b|
       |c|d|
       |e| |
-  
+
   @four
   Scenario: Failing
     Given failing

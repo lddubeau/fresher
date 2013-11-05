@@ -52,9 +52,9 @@ Feature: Fresher core
         ERROR: Sample: Failing
         ----------------------------------------------------------------------
         Traceback (most recent call last):
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 14, in failing
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 15, in failing
             flunker()
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 5, in flunker
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 7, in flunker
             raise Exception("FAIL")
         Exception: FAIL
 
@@ -83,9 +83,9 @@ Feature: Fresher core
         ERROR: Outline Sample: Test state
         ----------------------------------------------------------------------
         Traceback (most recent call last):
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 22, in fail_without_table
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 27, in fail_without_table
             flunker()
-          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 5, in flunker
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 7, in flunker
             raise Exception("FAIL")
         Exception: FAIL
 
@@ -112,4 +112,30 @@ Feature: Fresher core
         Ran 3 tests in {time}
 
         OK (UNDEFINED=1)
+        """
+  Scenario: Run non-ascii steps without issue
+    When I run nose -v examples/self_test/features/non-ascii.feature
+    Then it should fail with
+        """
+        Non-ascii: Non-ascii ... ok
+        Non-ascii: Non-ascii failure ... ERROR
+
+        ======================================================================
+        ERROR: Non-ascii: Non-ascii failure
+        ----------------------------------------------------------------------
+        Traceback (most recent call last):
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 89, in echoue
+            flunker()
+          File "{cwd}{sep}examples{sep}self_test{sep}features{sep}steps.py", line 7, in flunker
+            raise Exception("FAIL")
+        Exception: FAIL
+
+        Feature: Non-ascii
+            Scenario: Non-ascii failure
+                then échoue                              # examples/self_test/features/non-ascii.feature:7
+
+        ----------------------------------------------------------------------
+        Ran 2 tests in {time}
+
+        FAILED (errors=1)
         """

@@ -17,7 +17,7 @@ def assert_looks_like(first, second, msg=None):
 _assert_equal = assert_equal
 def assert_equal(first, second, msg=None):
     doit = all(isinstance(s, six.text_type) for s in [first, second]) and \
-           any("\n" in s for s in [first, second])
+           any(u"\n" in s for s in [first, second])
 
     if not doit:
         return _assert_equal(first, second, msg)

@@ -1,9 +1,10 @@
+#-*- coding: utf-8 -*-
+
 from fresher import *
 from nose.tools import *
 
 def flunker():
     raise Exception("FAIL")
-
 
 @Given("^passing$")
 def passing(table):
@@ -12,6 +13,10 @@ def passing(table):
 @Given("^failing$")
 def failing(string):
     flunker()
+
+@Given(u'^un éléphant dit "(.*?)"$')
+def elephant(string):
+    assert_equal(string, u"hélas", "string captured a unicode string")
 
 @Given("^passing without a table$")
 def pass_without_table():
@@ -43,7 +48,7 @@ def should_have_cukes(c):
 def global_cukes(c):
     if scc.scenario_runs >= 1:
         flunker()
-    
+
     glc.cukes = c
     scc.scenario_runs += 1
 
@@ -79,3 +84,6 @@ def unused():
 def another_unused():
     pass
 
+@Then(u'^échoue$')
+def echoue():
+    flunker()
