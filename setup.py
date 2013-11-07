@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name = "fresher",
-    version = "0.3.0",
+    version = "0.3.1",
     description = ("Clone of the Cucumber BDD framework for Python forked "
                    "from Freshen"),
     author = "Louis-Dominique Dubeau",
