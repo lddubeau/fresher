@@ -6,6 +6,17 @@ except ImportError:
 
 from setuptools import setup
 
+install_requires = [
+        'pyparsing>=1.5.0',
+        'PyYAML',
+        'nose>=0.11.1',
+        'six'
+        ]
+try:
+    import importlib
+except ImportError:
+    install_requires.append('importlib')
+
 setup(
     name = "fresher",
     version = "0.3.1",
@@ -17,12 +28,7 @@ setup(
     license = "GPL",
     packages = ["fresher", "fresher.test"],
     package_data = {'fresher': ['languages.yml']},
-    install_requires = [
-        'pyparsing>=1.5.0',
-        'PyYAML',
-        'nose>=0.11.1',
-        'six'
-    ],
+    install_requires = install_requires,
     entry_points = {
         'nose.plugins.0.10': [
             'fresher = fresher.noseplugin:FresherNosePlugin',
