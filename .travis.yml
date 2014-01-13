@@ -5,5 +5,7 @@ python:
 install:
   - if [[ $TRAVIS_PYTHON_VERSION == 2.* ]]; then pip install twisted; fi
   - python setup.py install
+  - mkdir $HOME/.python-eggs
+  - chmod og-w $HOME/.python-eggs
 script:
-  - PYTHONWARNINGS="ignore" nosetests $(if [[ $TRAVIS_PYTHON_VERSION == 3.* ]]; then echo --fresher-tags=~twisted; fi) --with-fresher tests
+  - nosetests $(if [[ $TRAVIS_PYTHON_VERSION == 3.* ]]; then echo --fresher-tags=~twisted; fi) --with-fresher tests
