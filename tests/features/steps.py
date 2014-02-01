@@ -19,7 +19,7 @@ def set_eliminate_traceback(scenario):
 
 @When("^I run nose (.+)$")
 def run_nose(args):
-    args_list = shlex.split(args)
+    args_list = shlex.split(args if six.PY3 else args.encode('utf-8'))
     command = ['nosetests', '-c', '/dev/null', '--with-fresher'] + args_list
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     scc.output, _ = process.communicate()
