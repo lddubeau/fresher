@@ -19,7 +19,7 @@ except ImportError:
 
 setup(
     name = "fresher",
-    version = "0.3.1",
+    version = "0.4.0",
     description = ("Clone of the Cucumber BDD framework for Python forked "
                    "from Freshen"),
     author = "Louis-Dominique Dubeau",
@@ -44,8 +44,9 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
         "Topic :: Software Development :: Quality Assurance",
         "Topic :: Software Development :: Testing",
     ]

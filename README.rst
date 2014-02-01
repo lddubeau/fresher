@@ -7,7 +7,9 @@ needed changes.
 
 Differences from Freshen:
 
-* Fresher is tested against Python 3.
+* Fresher is tested against Python 3.3, Python 2.7 and Python 2.6. (It
+  seems Freshen was tested against whatever Python happened to be
+  around. It definitely did not work on Python 3.)
 
 * The file to get Fresher to ignore a directory is ``.fresherignore``.
 
