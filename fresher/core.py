@@ -38,8 +38,10 @@ class StepsRunner(object):
 class TagMatcher(object):
 
     def __init__(self, tags):
-        self.include_tags = set(t.lstrip("@") for t in tags if not t.startswith("~"))
-        self.exclude_tags = set(t.lstrip("~@") for t in tags if t.startswith("~"))
+        self.include_tags = set(t.lstrip("@")
+                                for t in tags if not t.startswith("~"))
+        self.exclude_tags = set(t.lstrip("~@")
+                                for t in tags if t.startswith("~"))
 
     def check_match(self, tagset):
         tagset = set(t.lstrip("@") for t in tagset)
@@ -50,6 +52,7 @@ class TagMatcher(object):
 
 
 class Language(object):
+
     def __init__(self, mappings, default_mappings=None):
         self.mappings = mappings
         self.default_mappings = default_mappings
@@ -75,7 +78,7 @@ def load_feature(fname, language):
 def load_language(language_name, default_language_name="en"):
     directory, _f = os.path.split(os.path.abspath(__file__))
     language_path = os.path.join(directory, 'languages.yml')
-    languages = yaml.load(open(language_path))
+    languages = yaml.safe_load(open(language_path))
     if language_name not in languages:
         return None
     return Language(languages[language_name], languages[default_language_name])
@@ -87,7 +90,8 @@ def run_steps(spec, language="en"):
     # the fact that this has to be a global function and therefore cannot know about which step
     # runner to use (other than making step runner global)
 
-    # Find the step runner that is currently running and use it to run the given steps
+    # Find the step runner that is currently running and use it to run the
+    # given steps
     fr = inspect.currentframe()
     while fr:
         if "self" in fr.f_locals:
