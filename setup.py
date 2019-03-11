@@ -7,29 +7,29 @@ except ImportError:
 from setuptools import setup
 
 install_requires = [
-        'pyparsing>=1.5.0',
-        'PyYAML',
-        'nose>=0.11.1',
-        'six'
-        ]
+    'pyparsing>=1.5.0',
+    'PyYAML',
+    'nose>=0.11.1',
+    'six'
+]
 try:
     import importlib
 except ImportError:
     install_requires.append('importlib')
 
 setup(
-    name = "fresher",
-    version = "0.4.0",
-    description = ("Clone of the Cucumber BDD framework for Python forked "
-                   "from Freshen"),
-    author = "Louis-Dominique Dubeau",
-    author_email = "ldd@lddubeau.com",
-    url = "http://github.com/lddubeau/fresher",
-    license = "GPL",
-    packages = ["fresher", "fresher.test"],
-    package_data = {'fresher': ['languages.yml']},
-    install_requires = install_requires,
-    entry_points = {
+    name="fresher",
+    version="0.4.0",
+    description=("Clone of the Cucumber BDD framework for Python forked "
+                 "from Freshen"),
+    author="Louis-Dominique Dubeau",
+    author_email="ldd@lddubeau.com",
+    url="http://github.com/lddubeau/fresher",
+    license="GPL",
+    packages=["fresher", "fresher.test"],
+    package_data={'fresher': ['languages.yml']},
+    install_requires=install_requires,
+    entry_points={
         'nose.plugins.0.10': [
             'fresher = fresher.noseplugin:FresherNosePlugin',
             'freshererr = fresher.noseplugin:FresherErrorPlugin'
@@ -38,7 +38,7 @@ setup(
             'fresher-list = fresher.commands:list_steps',
         ],
     },
-    classifiers = [
+    classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Plugins",
         "Intended Audience :: Developers",
